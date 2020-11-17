@@ -53,21 +53,29 @@ SDBBoot = function(dta, statistic,T,subset_size,..., time_lim=300){
 } #end
 
 
-SDB_par = function(dta, statistic,T,subset_size,..., time_lim=300){
+SDB_par = function(dta, statistic,T,subset_size,..., niter,time_lim=300){
   FUN <- match.fun(statistic)
   T <- match.fun(T)
   X = cbind(dta,c())
   n = length(X[,1])
-  start = proc.time()[1]
+  start = proc.time()[3]
+  R = c()
   time = 0
 
-  #Set up parallel environment
-  ncores = parallel::detectCores() - 2
-  R = parallel::mclapply(1:ncores,
-      function(i){sdb_resampling(X, FUN, T, subset_size = subset_size,..., time.limPC = time_lim / ncores)},
-      mc.cores = ncores)
+  #Set up parallel environ
+  ncores = parallel::detectCores()
+  cl = parallel::makeCluster(ncores-2)
+  doParallel::registerDoParallel(cl)
+  while(time < time_lim){
+    T_iters = sdb_pal(X, FUN, T, subset_size, cl, niter = 100)
+    R = c(R, T_iters)
+    end = proc.time()[3]
+    time = end - start
+  }
+  doParallel::stopImplicitCluster()
+  parallel::stopCluster(cl)
+  return(list(R = R, iter = length(R)))
 }
-
 
 
 
