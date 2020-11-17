@@ -1,12 +1,28 @@
 ############Subsampled Double Bootstrap################
-SDBoot = function(dta, FUN,T,subset_size,..., time_lim=300){
-  FUN <- match.fun(FUN)
+#' Subsampled Double Bootstrap
+#' @description Given the data, some function of the data, and some error function,
+#' runs the Subsampled Double bootstrap algorithm.
+#' @param dta The data you want to bootstrap.
+#' @param statistic The statistic of interest (theta_hat).
+#' @param T The "root" or error function of interest.
+#' Note that the first argument should be the theta of the sample, and the senond arguent should be the
+#' "true" theta.
+#' @param subset_size How large should the initial subset be.
+#' @param ... Extra parameters to pass into T.star or FUN.
+#' @param time_lim How long should the function run. Default is 5 minutes.
+#'
+#' @return List of the theta_hat of dta, a vector containing all the T.star
+#' and the number of iterations completed in the time limit
+#' @export
+#'
+#' @examples
+SDBoot = function(dta, statistic,T,subset_size,..., time_lim=300){
+  FUN <- match.fun(statistic)
   T <- match.fun(T)
   X = cbind(dta,c())
   n = length(X[,1])
   start = proc.time()[1]
   time = 0
-  iter = 0
   R = c()
   while(time < time_lim){
     #Get indexes
@@ -25,14 +41,34 @@ SDBoot = function(dta, FUN,T,subset_size,..., time_lim=300){
     T_iter <- T(theta_resample, theta_j)
     R = c(R, T_iter)
 
-    #add 1 to iteration and check time
-    iter = iter + 1
+    #Check time
     end = proc.time()[1]
     time = end-start
   }#endloop
   #Calculate the actual statistic for the data
   theta_n = FUN(X, ...)
   #Find the standard error for the statistic of interest
-  rtn = list(t0=theta_n, T = R, iter = iter)
+  rtn = list(t0=theta_n, T = R, iter = length(R))
   return(rtn)
 } #end
+
+
+SDB_par = function(dta, statistic,T,subset_size,..., time_lim=300){
+  FUN <- match.fun(statistic)
+  T <- match.fun(T)
+  X = cbind(dta,c())
+  n = length(X[,1])
+  start = proc.time()[1]
+  time = 0
+
+  ncores = parallel::detectCores()
+
+  mclapply()
+
+}
+
+
+
+
+
+

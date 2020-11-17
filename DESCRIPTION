@@ -1,15 +1,19 @@
 Package: BDB
-Title: What the Package Does (One Line, Title Case)
+Title: Bid Data Bootstrap Methods
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    c(person(given = "Aaron",
+           family = "Brake",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "anbrake98@gmail.com",
+           ),
+    person(given = "Theresa",
+           family = "Abela",
+           role = c("aut"),
+           ))
 Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+License: MIT + file LICENSE
+Imports: parallel, doParallel
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
