@@ -12,7 +12,7 @@ blb_sampling = function(X, FUN, T, b = .6*n, iter = 100, ...){
   return(R)
 }
 
-sdb_pal = function(X, FUN,T,subset_size, cl, niter=100){
+sdb_pal = function(X, FUN,T,subset_size, cl, niter=50){
   foreach::foreach(i = 1:niter, .combine = 'c') %dopar% {
     n = length(X)
     index = sample(1:n, subset_size, replace = TRUE)

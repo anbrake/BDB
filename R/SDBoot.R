@@ -66,8 +66,9 @@ SDB_par = function(dta, statistic,T,subset_size,..., niter,time_lim=300){
   ncores = parallel::detectCores()
   cl = parallel::makeCluster(ncores-2)
   doParallel::registerDoParallel(cl)
+
   while(time < time_lim){
-    T_iters = sdb_pal(X, FUN, T, subset_size, cl, niter = 100)
+    T_iters = sdb_pal(X, FUN, T, subset_size, cl, niter)
     R = c(R, T_iters)
     end = proc.time()[3]
     time = end - start

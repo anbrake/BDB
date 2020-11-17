@@ -27,8 +27,8 @@ return(rtn)
 
 
 #Parallel implemntation of BLB_boot
-BLB_par = function(dta, FUN, T, subsets, ..., b = n^.6, iter = 100, ncores = ncores){
-  FUN <- match.fun(FUN)
+BLB_par = function(dta, statistic, T, subsets, ..., b = n^.6, iter = 100, ncores = ncores){
+  FUN <- match.fun(statistic)
   T.star <- match.fun(T)
   X = cbind(dta,c())
   n = length(X[,1])
