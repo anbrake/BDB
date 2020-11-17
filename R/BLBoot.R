@@ -1,7 +1,7 @@
 ############Bag of Little Bootstraps###############
 
-BLBoot = function(dta, FUN, T, subsets, ..., b = n^.6, iter = 100){
-  FUN <- match.fun(FUN)
+BLBoot = function(dta, statistic, T, subsets, ..., b = n^.6, iter = 100){
+  FUN <- match.fun(statistic)
   T.star <- match.fun(T)
   X = cbind(dta,c())
   n = length(X[,1])
@@ -26,7 +26,7 @@ return(rtn)
 }#end fun
 
 
-
+#Parallel implemntation of BLB_boot
 BLB_par = function(dta, FUN, T, subsets, ..., b = n^.6, iter = 100, ncores = ncores){
   FUN <- match.fun(FUN)
   T.star <- match.fun(T)
@@ -34,10 +34,10 @@ BLB_par = function(dta, FUN, T, subsets, ..., b = n^.6, iter = 100, ncores = nco
   n = length(X[,1])
 
   #Set up parallel environment
-  ncores = parallel::detectCores() - 2
-  mclapply(1:subsets, )
-
-
-
-
+  #ncores = parallel::detectCores() - 2
+  R = parallel::mclapply(1:subsets,
+            function(i){blb_sampling(X = X, statistic = FUN, T=T.star,
+            iter = iter, b = b)},
+            mc.cores = ncores)
+return(R)
 }

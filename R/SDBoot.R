@@ -16,7 +16,7 @@
 #' @export
 #'
 #' @examples
-SDBoot = function(dta, statistic,T,subset_size,..., time_lim=300){
+SDBBoot = function(dta, statistic,T,subset_size,..., time_lim=300){
   FUN <- match.fun(statistic)
   T <- match.fun(T)
   X = cbind(dta,c())
@@ -63,7 +63,9 @@ SDB_par = function(dta, statistic,T,subset_size,..., time_lim=300){
 
   #Set up parallel environment
   ncores = parallel::detectCores() - 2
-
+  R = parallel::mclapply(1:ncores,
+      function(i){sdb_resampling(X, FUN, T, subset_size = subset_size,..., time.limPC = time_lim / ncores)},
+      mc.cores = ncores)
 }
 
 
