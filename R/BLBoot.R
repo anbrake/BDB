@@ -7,7 +7,6 @@ BLBoot = function(dta, FUN, T, subsets, ..., b = n^.6, iter = 100){
   n = length(X[,1])
   R = c()
 
-
   for(s in 1:subsets){
     index = sample(1:n, b, replace = FALSE)
     X_j = X[index,]
@@ -22,6 +21,23 @@ BLBoot = function(dta, FUN, T, subsets, ..., b = n^.6, iter = 100){
   #Calculate the actual statistic for the data
   theta_n = FUN(X, ...)
   #Find the standard error for the statistic of interest
-  rtn = list(t0=theta_n, T = R, subsets = iter)
+  rtn = list(t0=theta_n, T = R, iter = length(R))
 return(rtn)
 }#end fun
+
+
+
+BLB_par = function(dta, FUN, T, subsets, ..., b = n^.6, iter = 100, ncores = ncores){
+  FUN <- match.fun(FUN)
+  T.star <- match.fun(T)
+  X = cbind(dta,c())
+  n = length(X[,1])
+
+  #Set up parallel environment
+  ncores = parallel::detectCores() - 2
+  mclapply(1:subsets, )
+
+
+
+
+}

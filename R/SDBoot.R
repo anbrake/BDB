@@ -61,9 +61,8 @@ SDB_par = function(dta, statistic,T,subset_size,..., time_lim=300){
   start = proc.time()[1]
   time = 0
 
-  ncores = parallel::detectCores()
-
-  mclapply()
+  #Set up parallel environment
+  ncores = parallel::detectCores() - 2
 
 }
 
