@@ -1,5 +1,6 @@
 blb_sampling = function(X, FUN, T, b = .6*n, iter = 100, ...){
   R = c()
+  n  = length(X[,1])
   index = sample(1:n, b, replace = FALSE)
   X_j = X[index,]
   theta_j = FUN(X_j, ...)
@@ -12,15 +13,14 @@ blb_sampling = function(X, FUN, T, b = .6*n, iter = 100, ...){
   return(R)
 }
 
-sdb_pal = function(X, FUN,T,subset_size, cl, niter=50){
+sdb_pal = function(X, FUN,T,subset_size, n, niter){
   foreach::foreach(i = 1:niter, .combine = 'c') %dopar% {
-    n = length(X)
     index = sample(1:n, subset_size, replace = TRUE)
     resample.index = sample(1:subset_size, n, replace = TRUE)
-
     #Subsample and resample data
     X_j <- X[index,]
-    X_jresample <- sample(X_j, n, replace = TRUE)
+    X_j = cbind(X_j, c())
+    X_jresample <- X_j[resample.index,]
 
     #Calculate the statistic of interest
     theta_j <- FUN(X_j)
@@ -32,7 +32,14 @@ sdb_pal = function(X, FUN,T,subset_size, cl, niter=50){
 }
 
 
-
+timefcn = function(X, statistic, T, subset_size){
+  iters1 = SDBBoot(X, statistic, T, subset_size = subset_size, time_lim = 15)$iters
+  iters2 = SDBBoot(X, statistic, T, subset_size = subset_size, time_lim = 15)$iters
+  #2*iters*t(b) = time
+  t.b = 15/(iters1+iters2)
+  sd_iters = sd(iters1,iters2)
+  return(t.b)
+}
 
 
 

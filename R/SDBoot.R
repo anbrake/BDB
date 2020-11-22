@@ -31,7 +31,8 @@ SDBBoot = function(dta, statistic,T,subset_size,..., time_lim=300){
 
     #Subsample and resample data
     X_j <- X[index,]
-    X_jresample <- sample(X_j, n, replace = TRUE)
+    X_j = cbind(X_j, c())
+    X_jresample <- X_j[resample.index,]
 
     #Calculate the statistic of interest
     theta_j <- FUN(X_j, ...)
@@ -48,12 +49,12 @@ SDBBoot = function(dta, statistic,T,subset_size,..., time_lim=300){
   #Calculate the actual statistic for the data
   theta_n = FUN(X, ...)
   #Find the standard error for the statistic of interest
-  rtn = list(t0=theta_n, T = R, iter = length(R))
+  rtn = list(t0=theta_n, T = R, iter = length(R), total.time = time)
   return(rtn)
 } #end
 
-
-SDB_par = function(dta, statistic,T,subset_size,..., niter,time_lim=300){
+###################Parallel Implementation#####
+SDB_ParallelNaive = function(dta, statistic,T,subset_size,..., niter,time_lim=300){
   FUN <- match.fun(statistic)
   T <- match.fun(T)
   X = cbind(dta,c())
@@ -66,18 +67,39 @@ SDB_par = function(dta, statistic,T,subset_size,..., niter,time_lim=300){
   ncores = parallel::detectCores()
   cl = parallel::makeCluster(ncores-2)
   doParallel::registerDoParallel(cl)
-
   while(time < time_lim){
-    T_iters = sdb_pal(X, FUN, T, subset_size, cl, niter)
+    T_iters = sdb_pal(X, FUN, T, subset_size, n=n,niter = niter)
     R = c(R, T_iters)
     end = proc.time()[3]
     time = end - start
   }
-  doParallel::stopImplicitCluster()
-  parallel::stopCluster(cl)
-  return(list(R = R, iter = length(R)))
+  on.exit(expr=parallel::stopCluster(cl))
+  #Calculate the actual statistic for the data
+  theta_n = FUN(X, ...)
+  #Find the standard error for the statistic of interest
+  tot.time = proc.time()[3] - start
+  rtn = list(t0=theta_n, T = R, iter = length(R), total.time = tot.time)
+  return(rtn)
 }
 
+SDB_ParallelTimeSolve = function(dta, statistic,T,subset_size,..., c,time_lim=300){
+  FUN <- match.fun(statistic)
+  T <- match.fun(T)
+  X = cbind(dta,c())
+  n = length(X[,1])
+  start = proc.time()[3]
+
+  #Number of iterations
+  t.b = timefcn(X, statistic, T, subset_size)
+  #solve for number of iterations
+  iters = time_lim / (2*t.b)
+  R = sdb_pal(X, FUN,T,subset_size, n, niter = iters)
+
+  end = proc.time()[3]
+  tot.time = end-start
+  rtn = list(t0=theta_n,T=R, iter = iters, total.time = tot.time)
+  return(rtn)
+}
 
 
 
